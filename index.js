@@ -61,7 +61,8 @@ const openDownloadFiles = async (videoURL = '', topic = '') => {
 		console.log('Start Downloading ... %o   :   duration %o', filename, fileLength);
 		console.log(videoURL);
 		let _topic = topic.replace(/[^\w\s]/gi, '_');
-		filename = filename.replace(/[^\w\s]/gi, '_');
+		let fileExt = filename.split('.');
+		filename = fileExt[0].replace(/[^\w\s]/gi, '_') + '.' + fileExt[1];
 		//console.log('OUTPUT_PATH == ', process.env.OUTPUT_PATH);
 		let output_path = process.env.OUTPUT_PATH && process.env.OUTPUT_PATH !== '' ? process.env.OUTPUT_PATH : '~/Movies';
 		console.log('Video saving to == %o', process.env.OUTPUT_PATH);
