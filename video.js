@@ -8,7 +8,7 @@ const openDownloadFiles = async (videoURL = '', topic = '') => {
 	videoURL = videoURL.split(' ').join('');
 	console.log(videoURL);
 	//console.log('OUTPUT_PATH == ', process.env.OUTPUT_PATH);
-	let output_path = process.env.OUTPUT_PATH ? process.env.OUTPUT_PATH : '~/Movies';
+	let output_path = process.env.OUTPUT_PATH && process.env.OUTPUT_PATH !== '' ? process.env.OUTPUT_PATH : '~/Movies';
 	let cmd = 'youtube-dl -o ' + output_path + topic + '/' + filename + ' ' + videoURL.trim();
 	cmd = cmd.replace(/(\r\n|\n|\r)/gm, '');
 	console.log(cmd);
