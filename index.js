@@ -1,8 +1,8 @@
 const videoLink = require('./videoPageExtract');
-const vDownload = require('./video');
 const fs = require('fs');
 require('dotenv').config();
-
+const execSync = require('child_process').execSync;
+var exec = require('shelljs').exec;
 // console.log('============= process.env ', process.env);
 
 const readTopicFile = async () => {
@@ -39,7 +39,7 @@ const start = async () => {
 		videoLinkData = await videoLink.videoLinkFinder(topics[i].videoURL);
 		console.log('videoLinkArr', videoLinkData);
 		for (let i = 0; i < videoLinkData.linkArr.length; i++) {
-			const status = await vDownload.openDownloadFiles(videoLinkData.linkArr[i], videoLinkData.topic);
+			const status = await openDownloadFiles(videoLinkData.linkArr[i], videoLinkData.topic);
 			console.log('download [100% done]   ', status, '\n\n');
 		}
 	}
@@ -49,3 +49,32 @@ const start = async () => {
 };
 
 start();
+
+const openDownloadFiles = async (videoURL = '', topic = '') => {
+	try {
+		let filename = execSync(`youtube-dl --get-filename -o '%(title)s.%(ext)s' ${videoURL}`);
+		let fileLength = execSync(`youtube-dl --get-duration ${videoURL}`);
+		fileLength = fileLength.toString();
+		filename = filename.toString();
+		filename = filename.split(' ').join('_');
+		videoURL = videoURL.split(' ').join('');
+		console.log('Start Downloading ... %o   :   duration %o', filename, fileLength);
+		console.log(videoURL);
+		let _topic = topic.replace(/[^\w\s]/gi, '_');
+		filename = filename.replace(/[^\w\s]/gi, '_');
+		//console.log('OUTPUT_PATH == ', process.env.OUTPUT_PATH);
+		let output_path = process.env.OUTPUT_PATH && process.env.OUTPUT_PATH !== '' ? process.env.OUTPUT_PATH : '~/Movies';
+		console.log('Video saving to == %o', process.env.OUTPUT_PATH);
+		let fullOutput = output_path + _topic + '/' + filename;
+		let cmd = 'youtube-dl -o ' + fullOutput + ' ' + videoURL.trim();
+		cmd = cmd.replace(/(\r\n|\n|\r)/gm, '');
+		//console.log(cmd);
+		console.log('%o', 'Please wait... I will show logs once buffer downloaded...');
+		//let code = execSync(cmd);
+
+		exec(cmd, { silent: false }).stdout;
+		return filename;
+	} catch (err) {
+		console.error(err);
+	}
+};
