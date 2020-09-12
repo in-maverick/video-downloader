@@ -54,8 +54,9 @@ const start = async () => {
 
 start();
 
-const openDownloadFiles = async (videoURL = 'https://www.oreilly.com/library/view/amazon-web-services/9780135581247/awss_01_02_02_00.html', topic = 'ssss') => {
+const openDownloadFiles = async (videoURL = '', topic = '') => {
 	try {
+		console.log('%o', 'Please wait...');
 		let filename = execSync(`youtube-dl --get-filename -o '%(title)s.%(ext)s' ${videoURL}`);
 		filename = filename.toString();
 		filename = filename.split(' ').join('_');
@@ -74,9 +75,15 @@ const openDownloadFiles = async (videoURL = 'https://www.oreilly.com/library/vie
 		let output_path = process.env.OUTPUT_PATH && process.env.OUTPUT_PATH !== '' ? process.env.OUTPUT_PATH : './';
 		console.log('Video saving to == %o', process.env.OUTPUT_PATH);
 		let fullOutput = output_path + _topic + '/' + filename;
-		console.log('%o \n', `VIDEO_QUALITY is ${process.env.LOW_VIDEO_QUALITY === true ? 'low [Data Saver mode]' : 'high [Must me on High Speed Internet] => [change .env file]'}`);
+		//console.log(process.env.LOW_VIDEO_QUALITY);
+		console.log(
+			'%o \n',
+			`VIDEO_QUALITY is ${
+				process.env.LOW_VIDEO_QUALITY || process.env.LOW_VIDEO_QUALITY === 'true' ? 'low [Data Saver mode]' : 'high [Must me on High Speed Internet] => [change .env file]'
+			}`
+		);
 		let videoQuality =
-			process.env.LOW_VIDEO_QUALITY === true ? `'bestvideo[height<=480]+bestaudio/best[height<=480]'` : `'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'`;
+			process.env.LOW_VIDEO_QUALITY || process.env.LOW_VIDEO_QUALITY === 'true' ? `'[height <=? 480]'` : `'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'`;
 		let cmd = `youtube-dl -f ${videoQuality} -u ${process.env.USER_EMAIL} -p ${process.env.USER_PASSWORD} -o ${fullOutput} ${videoURL.trim()}`;
 		cmd = cmd.replace(/(\r\n|\n|\r)/gm, '');
 		//console.log(cmd);
