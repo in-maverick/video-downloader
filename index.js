@@ -54,16 +54,14 @@ const start = async () => {
 
 start();
 
-const openDownloadFiles = async (videoURL = '', topic = '') => {
+const openDownloadFiles = async (videoURL = 'https://www.oreilly.com/library/view/amazon-web-services/9780135581247/awss_01_02_02_00.html', topic = 'ssss') => {
 	try {
 		let filename = execSync(`youtube-dl --get-filename -o '%(title)s.%(ext)s' ${videoURL}`);
-		let fileLength = execSync(`youtube-dl --get-duration ${videoURL}`);
-		fileLength = fileLength.toString();
 		filename = filename.toString();
 		filename = filename.split(' ').join('_');
 		videoURL = videoURL.split(' ').join('');
-		console.log('Start Downloading ... %o   :   duration %o', filename, fileLength);
-		console.log(videoURL);
+		console.log('Start Downloading ...... %o:', filename);
+		//console.log(videoURL);
 		let _topic = topic.replace(/[^\w\s]/gi, '_');
 
 		let fileExt = filename.split('.');
@@ -73,15 +71,17 @@ const openDownloadFiles = async (videoURL = '', topic = '') => {
 		filename = filename.replace(/\W/g, '_') + '.' + fileExt;
 
 		//console.log('OUTPUT_PATH == ', process.env.OUTPUT_PATH);
-		let output_path = process.env.OUTPUT_PATH && process.env.OUTPUT_PATH !== '' ? process.env.OUTPUT_PATH : '~/Movies';
+		let output_path = process.env.OUTPUT_PATH && process.env.OUTPUT_PATH !== '' ? process.env.OUTPUT_PATH : './';
 		console.log('Video saving to == %o', process.env.OUTPUT_PATH);
 		let fullOutput = output_path + _topic + '/' + filename;
-		let cmd = 'youtube-dl -o ' + fullOutput + ' ' + videoURL.trim();
+		console.log('%o \n', `VIDEO_QUALITY is ${process.env.LOW_VIDEO_QUALITY === true ? 'low [Data Saver mode]' : 'high [Must me on High Speed Internet] => [change .env file]'}`);
+		let videoQuality =
+			process.env.LOW_VIDEO_QUALITY === true ? `'bestvideo[height<=480]+bestaudio/best[height<=480]'` : `'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'`;
+		let cmd = `youtube-dl -f ${videoQuality} -u ${process.env.USER_EMAIL} -p ${process.env.USER_PASSWORD} -o ${fullOutput} ${videoURL.trim()}`;
 		cmd = cmd.replace(/(\r\n|\n|\r)/gm, '');
 		//console.log(cmd);
-		console.log('%o', 'Please wait... I will show logs once buffer downloaded...');
+		console.log('%o \n', 'Please wait... I will show logs once buffer downloaded...');
 		//let code = execSync(cmd);
-
 		exec(cmd, { silent: false }).stdout;
 		return filename;
 	} catch (err) {
