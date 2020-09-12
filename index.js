@@ -32,20 +32,24 @@ const writeTopicFile = (fileData = `['done']`) => {
 	fs.writeFileSync(__dirname + '/topicArr.txt', fileData);
 };
 const start = async () => {
-	const topics = await readTopicFile();
-	console.log('topics', topics.length);
-	for (let i = 0; i < topics.length; i++) {
-		console.log('topics videoURL', topics[i].videoURL);
-		videoLinkData = await videoLink.videoLinkFinder(topics[i].videoURL);
-		console.log('videoLinkArr', videoLinkData);
-		for (let i = 0; i < videoLinkData.linkArr.length; i++) {
-			const status = await openDownloadFiles(videoLinkData.linkArr[i], videoLinkData.topic);
-			console.log('download [100% done]   ', status, '\n\n');
+	try {
+		const topics = await readTopicFile();
+		console.log('topics', topics.length);
+		for (let i = 0; i < topics.length; i++) {
+			console.log('topics videoURL', topics[i].videoURL);
+			videoLinkData = await videoLink.videoLinkFinder(topics[i].videoURL);
+			console.log('videoLinkArr', videoLinkData);
+			for (let i = 0; i < videoLinkData.linkArr.length; i++) {
+				const status = await openDownloadFiles(videoLinkData.linkArr[i], videoLinkData.topic);
+				console.log('download [100% done]   ', status, '\n\n');
+			}
 		}
+		//writeTopicFile(`link: ${videoLinkData.linkArr[i]}, topic: ${videoLinkData.topic}`);
+		//reWriteTopicFile();
+		return null;
+	} catch (err) {
+		console.error(err);
 	}
-	writeTopicFile(`link: ${videoLinkData.linkArr[i]}, topic: ${videoLinkData.topic}`);
-	reWriteTopicFile();
-	return null;
 };
 
 start();
@@ -61,8 +65,13 @@ const openDownloadFiles = async (videoURL = '', topic = '') => {
 		console.log('Start Downloading ... %o   :   duration %o', filename, fileLength);
 		console.log(videoURL);
 		let _topic = topic.replace(/[^\w\s]/gi, '_');
+
 		let fileExt = filename.split('.');
-		filename = fileExt[0].replace(/[^\w\s]/gi, '_') + '.' + fileExt[1];
+		fileExt = fileExt[fileExt.length - 1];
+
+		filename = filename.split('.').join('_');
+		filename = filename.replace(/\W/g, '_') + '.' + fileExt;
+
 		//console.log('OUTPUT_PATH == ', process.env.OUTPUT_PATH);
 		let output_path = process.env.OUTPUT_PATH && process.env.OUTPUT_PATH !== '' ? process.env.OUTPUT_PATH : '~/Movies';
 		console.log('Video saving to == %o', process.env.OUTPUT_PATH);
