@@ -50,6 +50,7 @@ const videoLinkFinder = async (videoURL) => {
 		});
 		await browser.close();
 		console.log('[videoLinkFinder] Link found====', filteredLinks.length);
+		filteredLinks.sort();
 		return {
 			linkArr: filteredLinks.slice(2, filteredLinks.length),
 			topic: topic,

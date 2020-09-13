@@ -40,7 +40,7 @@ const start = async () => {
 			videoLinkData = await videoLink.videoLinkFinder(topics[i].videoURL);
 			console.log('videoLinkArr', videoLinkData);
 			for (let i = 0; i < videoLinkData.linkArr.length; i++) {
-				const status = await openDownloadFiles(videoLinkData.linkArr[i], videoLinkData.topic);
+				const status = await openDownloadFiles(videoLinkData.linkArr[i], videoLinkData.topic,i);
 				console.log('download [100% done]   ', status, '\n\n');
 			}
 		}
@@ -54,7 +54,7 @@ const start = async () => {
 
 start();
 
-const openDownloadFiles = async (videoURL = '', topic = '') => {
+const openDownloadFiles = async (videoURL = '', topic = '',index=0) => {
 	try {
 		console.log('%o', 'Please wait...');
 		let filename = execSync(`youtube-dl --get-filename -o '%(title)s.%(ext)s' ${videoURL}`);
@@ -69,7 +69,7 @@ const openDownloadFiles = async (videoURL = '', topic = '') => {
 		fileExt = fileExt[fileExt.length - 1];
 
 		filename = filename.split('.').join('_');
-		filename = filename.replace(/\W/g, '_') + '.' + fileExt;
+		filename = ''+index+'_'+filename.replace(/\W/g, '_') + '.' + fileExt;
 
 		//console.log('OUTPUT_PATH == ', process.env.OUTPUT_PATH);
 		let output_path = process.env.OUTPUT_PATH && process.env.OUTPUT_PATH !== '' ? process.env.OUTPUT_PATH : './';
